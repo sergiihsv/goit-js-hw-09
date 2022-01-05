@@ -6,6 +6,10 @@ const refs = {
 refs.startBtn.addEventListener('click', start);
 refs.stopBtn.addEventListener('click', stop);
 
+function getRandomHexColor() {
+  return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+}
+
 let intervalColorChange = '';
 
 function start() {
@@ -21,8 +25,4 @@ function stop() {
   clearInterval(intervalColorChange);
   refs.startBtn.removeAttribute('disabled');
   refs.stopBtn.setAttribute('disabled', true);
-}
-
-function getRandomHexColor() {
-  return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
 }
