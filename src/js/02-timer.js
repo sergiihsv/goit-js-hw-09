@@ -10,3 +10,22 @@ const refs = {
   minutes: document.querySelector('span[data-minutes]'),
   seconds: document.querySelector('span[data-seconds]'),
 };
+
+let date = null;
+
+const options = {
+  enableTime: true,
+  time_24hr: true,
+  defaultDate: new Date(),
+  minuteIncrement: 1,
+  onClose(selectedDates) {
+    date = selectedDates[0].getTime();
+    if (date <= options.defaultDate.getTime()) {
+      window.alert('Please choose a date in the future');
+      return;
+    }
+    startBtn.disabled = false;
+  },
+};
+
+flatpickr(refs.input, options);
