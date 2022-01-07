@@ -21,11 +21,63 @@ const options = {
   onClose(selectedDates) {
     date = selectedDates[0].getTime();
     if (date <= options.defaultDate.getTime()) {
-      window.alert('Please choose a date in the future');
+      Notiflix.Notify.failure('Please choose a date in the future');
       return;
     }
-    startBtn.disabled = false;
+    refs.startBtn.disabled = false;
   },
 };
 
-flatpickr(refs.input, options);
+refs.startBtn.disabled = true;
+
+const datePickr = flatpickr(refs.input, options);
+
+refs.startBtn.addEventListener('click', () => {
+  timer.end();
+});
+
+const timer = {
+  isActive: false,
+  end() {
+    if (this.isActive) {
+      return;
+    }
+
+    this.isActive = true;
+
+    const intervalId = setInterval(() => {
+      const currentTime = Date.now();
+      const deltaTime = datePickr.selectedDates[0] - currentTime;
+      const time = convertMs(deltaTime);
+      updateClock(time);
+      if (deltaTime < 1000) {
+        clearInterval(intervalId);
+      }
+    }, 1000);
+  },
+};
+
+function updateClock({ days, hours, minutes, seconds }) {
+  refs.days.textContent = `${days}`;
+  refs.hours.textContent = `${hours}`;
+  refs.minutes.textContent = `${minutes}`;
+  refs.seconds.textContent = `${seconds}`;
+}
+
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
+}
+
+function convertMs(ms) {
+  const second = 1000;
+  const minute = second * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+
+  const days = addLeadingZero(Math.floor(ms / day));
+  const hours = addLeadingZero(Math.floor((ms % day) / hour));
+  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
+  const seconds = addLeadingZero(Math.floor((((ms % day) % hour) % minute) / second));
+
+  return { days, hours, minutes, seconds };
+}
