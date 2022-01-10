@@ -11,7 +11,7 @@ const refs = {
   seconds: document.querySelector('span[data-seconds]'),
 };
 
-let date = null;
+refs.startBtn.disabled = true;
 
 const options = {
   enableTime: true,
@@ -19,16 +19,15 @@ const options = {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    date = selectedDates[0].getTime();
-    if (date <= options.defaultDate.getTime()) {
+    const selectedDate = selectedDates[0].getTime();
+    const currentDate = this.config.defaultDate.getTime();
+    if (currentDate > selectedDate) {
       Notiflix.Notify.failure('Please choose a date in the future');
       return;
     }
     refs.startBtn.disabled = false;
   },
 };
-
-refs.startBtn.disabled = true;
 
 const datePickr = flatpickr(refs.input, options);
 
@@ -45,9 +44,19 @@ const timer = {
 
     this.isActive = true;
 
+    refs.input.disabled = true;
+    refs.startBtn.disabled = true;
+
     const intervalId = setInterval(() => {
       const currentTime = Date.now();
       const deltaTime = datePickr.selectedDates[0] - currentTime;
+
+      if (datePickr.selectedDates[0] <= currentTime) {
+        clearInterval(intervalId);
+        Notiflix.Notify.failure('You time is up!');
+        return;
+      }
+
       const time = convertMs(deltaTime);
       updateClock(time);
       if (deltaTime < 1000) {
